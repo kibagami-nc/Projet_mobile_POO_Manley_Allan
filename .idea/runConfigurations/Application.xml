@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="poo-mobile" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="nc.manley_allan.poo_mobile.PooMobileApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,0 +1,400 @@
+# =============================================================================
+# Caillou Tour — Changelog Liquibase (PostgreSQL)
+# Déduit du diagramme de classes et du diagramme de cas d'utilisation
+# (cahier des charges v1.0 du 31/08/2026 — Manley & Allan, BTS SIO SLAM)
+#
+# Tables : utilisateur, categorie, lieu, photo, favori, avis
+#
+# Choix de conception :
+#   - Administrateur hérite d'Utilisateur -> une seule table `utilisateur`
+#     avec une colonne `role` (MEMBRE / ADMIN).
+#   - Position est une composition 1..1 de Lieu -> colonnes latitude/longitude
+#     directement dans `lieu`.
+#   - Favori est une classe-association Utilisateur <-> Lieu -> table `favori`
+#     avec clé primaire composée (utilisateur_id, lieu_id) + date_ajout.
+#   - Les énumérations (Province, StatutAvis, Role) sont de simples VARCHAR :
+#     les valeurs autorisées sont gérées par les enums Java côté application.
+#   - Lieu.noteMoyenne est un attribut dérivé (calculé) -> non stocké.
+#   - CacheLocal et Preferences sont stockés localement sur l'appareil
+#     (aucune donnée envoyée au serveur) -> pas de table.
+# =============================================================================
+databaseChangeLog:
+
+  # ---------------------------------------------------------------------------
+  # 1. UTILISATEUR (+ Administrateur via colonne role)
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 1-create-utilisateur
+      author: manley.bouille
+      comment: "Table des comptes (Utilisateur / Administrateur) — M5, M7"
+      changes:
+        - createTable:
+            tableName: utilisateur
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_utilisateur
+                    nullable: false
+              - column:
+                  name: nom
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_utilisateur_email
+              - column:
+                  name: mot_de_passe
+                  type: varchar(255)
+                  remarks: "Hash du mot de passe (jamais en clair)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_inscription
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(20)
+                  defaultValue: MEMBRE
+                  remarks: "MEMBRE ou ADMIN (généralisation Administrateur -> Utilisateur)"
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: utilisateur
+
+  # ---------------------------------------------------------------------------
+  # 2. CATEGORIE
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 2-create-categorie
+      author: manley.bouille
+      comment: "Catégories de lieux — M3, M7"
+      changes:
+        - createTable:
+            tableName: categorie
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_categorie
+                    nullable: false
+              - column:
+                  name: libelle
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_categorie_libelle
+      rollback:
+        - dropTable:
+            tableName: categorie
+
+  # ---------------------------------------------------------------------------
+  # 3. LIEU (+ Position en composition : latitude / longitude)
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 3-create-lieu
+      author: manley.bouille
+      comment: "Lieux touristiques avec position GPS et province — M1, M2, M3, M7"
+      changes:
+        - createTable:
+            tableName: lieu
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_lieu
+                    nullable: false
+              - column:
+                  name: nom
+                  type: varchar(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: province
+                  type: varchar(20)
+                  remarks: "SUD, NORD ou ILES_LOYAUTE"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: latitude
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: longitude
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: categorie_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_lieu_categorie
+                    references: categorie(id)
+        - createIndex:
+            tableName: lieu
+            indexName: idx_lieu_categorie
+            columns:
+              - column:
+                  name: categorie_id
+        - createIndex:
+            tableName: lieu
+            indexName: idx_lieu_province
+            columns:
+              - column:
+                  name: province
+        - sql:
+            dbms: postgresql
+            sql: >-
+              ALTER TABLE lieu
+              ADD CONSTRAINT ck_lieu_position
+              CHECK (latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180)
+      rollback:
+        - dropTable:
+            tableName: lieu
+
+  # ---------------------------------------------------------------------------
+  # 4. PHOTO (composition : supprimée avec le lieu)
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 4-create-photo
+      author: manley.bouille
+      comment: "Photos illustrant un lieu (≤ 200 Ko) — M2, M7"
+      changes:
+        - createTable:
+            tableName: photo
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_photo
+                    nullable: false
+              - column:
+                  name: url
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: taille_ko
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: lieu_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_photo_lieu
+                    references: lieu(id)
+                    deleteCascade: true
+        - createIndex:
+            tableName: photo
+            indexName: idx_photo_lieu
+            columns:
+              - column:
+                  name: lieu_id
+        - sql:
+            dbms: postgresql
+            sql: >-
+              ALTER TABLE photo
+              ADD CONSTRAINT ck_photo_taille
+              CHECK (taille_ko > 0 AND taille_ko <= 200)
+      rollback:
+        - dropTable:
+            tableName: photo
+
+  # ---------------------------------------------------------------------------
+  # 5. FAVORI (classe-association Utilisateur 0..* <-> 0..* Lieu)
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 5-create-favori
+      author: manley.bouille
+      comment: "Favoris d'un membre — M6"
+      changes:
+        - createTable:
+            tableName: favori
+            columns:
+              - column:
+                  name: utilisateur_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_favori_utilisateur
+                    references: utilisateur(id)
+                    deleteCascade: true
+              - column:
+                  name: lieu_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_favori_lieu
+                    references: lieu(id)
+                    deleteCascade: true
+              - column:
+                  name: date_ajout
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: favori
+            columnNames: utilisateur_id, lieu_id
+            constraintName: pk_favori
+      rollback:
+        - dropTable:
+            tableName: favori
+
+  # ---------------------------------------------------------------------------
+  # 6. AVIS (note 1..5, modération, anonymisation RGPD)
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 6-create-avis
+      author: manley.bouille
+      comment: "Avis déposés par les membres et modérés par l'admin — S1, M5"
+      changes:
+        - createTable:
+            tableName: avis
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_avis
+                    nullable: false
+              - column:
+                  name: note
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: commentaire
+                  type: text
+              - column:
+                  name: date_publication
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: statut
+                  type: varchar(20)
+                  defaultValue: EN_ATTENTE
+                  remarks: "EN_ATTENTE, PUBLIE ou REJETE"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: anonyme
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: lieu_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_avis_lieu
+                    references: lieu(id)
+                    deleteCascade: true
+              - column:
+                  name: utilisateur_id
+                  type: int
+                  remarks: "NULL lorsque l'avis a été anonymisé (suppression de compte RGPD)"
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_avis_utilisateur
+                    references: utilisateur(id)
+                    deleteCascade: false
+        - createIndex:
+            tableName: avis
+            indexName: idx_avis_lieu
+            columns:
+              - column:
+                  name: lieu_id
+        - createIndex:
+            tableName: avis
+            indexName: idx_avis_utilisateur
+            columns:
+              - column:
+                  name: utilisateur_id
+        - createIndex:
+            tableName: avis
+            indexName: idx_avis_statut
+            columns:
+              - column:
+                  name: statut
+        - sql:
+            dbms: postgresql
+            sql: >-
+              ALTER TABLE avis
+              ADD CONSTRAINT ck_avis_note
+              CHECK (note BETWEEN 1 AND 5)
+        - sql:
+            dbms: postgresql
+            sql: >-
+              ALTER TABLE avis
+              ADD CONSTRAINT ck_avis_anonyme
+              CHECK (anonyme = FALSE OR utilisateur_id IS NULL)
+      rollback:
+        - dropTable:
+            tableName: avis
+
+  # ---------------------------------------------------------------------------
+  # 7. Données de référence : catégories initiales
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 7-seed-categorie
+      author: manley.bouille
+      comment: "Catégories de départ (modifiables par l'administrateur)"
+      changes:
+        - insert:
+            tableName: categorie
+            columns:
+              - column: { name: libelle, value: "Plage" }
+        - insert:
+            tableName: categorie
+            columns:
+              - column: { name: libelle, value: "Randonnée" }
+        - insert:
+            tableName: categorie
+            columns:
+              - column: { name: libelle, value: "Site culturel" }
+        - insert:
+            tableName: categorie
+            columns:
+              - column: { name: libelle, value: "Cascade" }
+        - insert:
+            tableName: categorie
+            columns:
+              - column: { name: libelle, value: "Point de vue" }
+      rollback:
+        - delete:
+            tableName: categorie

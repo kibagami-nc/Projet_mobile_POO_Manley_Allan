@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Photo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -20,6 +21,7 @@ public class Photo {
     private int taille_ko;
 
     // --- CLÉS ÉTRANGÈRES / RELATIONS ---
+
     @ManyToOne
     @Column(name = "lieu_id")
     private Lieu lieu_id;

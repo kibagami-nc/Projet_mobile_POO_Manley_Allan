@@ -16,16 +16,21 @@ public class Lieu {
 
     @Column(name = "nom")
     private String nom;
+
     @Column(name = "description")
     private String description;
+
     @Column(name = "province")
     private String province;
+
     @Column(name = "latitude")
     private double latitude;
+
     @Column(name = "longitude")
     private double longitude;
 
     // --- CLÉS ÉTRANGÈRES / RELATIONS ---
+
     @ManyToOne
     @Column(name = "categorie_id")
     private Categorie categorie;

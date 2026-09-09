@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Utilisateur {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -18,12 +19,16 @@ public class Utilisateur {
 
     @Column(name = "nom")
     private String nom;
+
     @Column(name = "email")
     private String email;
+
     @Column(name = "mot_de_passe")
     private String mot_de_passe;
+
     @Column(name = "date_inscription")
     private LocalDate date_inscription;
+
     @Column(name = "role")
     private String role;
 }

@@ -15,12 +15,12 @@ public class Favori {
     private FavoriId id;
 
     @ManyToOne
-    @MapsId("utilisateurId") // Fait le lien avec l'attribut 'utilisateurId' de la classe FavoriId
+    @MapsId("utilisateurId")
     @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
 
     @ManyToOne
-    @MapsId("lieuId") // Fait le lien avec l'attribut 'lieuId' de la classe FavoriId
+    @MapsId("lieuId")
     @JoinColumn(name = "lieu_id")
     private Lieu lieu;
 }

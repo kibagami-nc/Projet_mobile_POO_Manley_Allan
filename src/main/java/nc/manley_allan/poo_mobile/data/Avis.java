@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Avis {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -18,12 +19,16 @@ public class Avis {
 
     @Column(name = "note")
     private int note;
+
     @Column(name = "commentaire")
     private String commentaire;
+
     @Column(name = "date_publication")
     private LocalDate date_publication;
+
     @Column(name = "status")
     private String status;
+
     @Column(name = "anonyme")
     private boolean anonyme;
 

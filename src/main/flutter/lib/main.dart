@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'login.dart';
+
 
 void main() {
   runApp(const MonApp());
@@ -33,7 +37,27 @@ class _PagePrincipaleState extends State<PagePrincipale> {
       body: _index == 0 ? const Carte() : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: (i) {
+          switch(i) {
+            case 0:
+            // Si l'utilisateur clique sur l'index 0 (Explorer)
+              setState(() => _index = i);
+
+            case 1:
+            // Si l'utilisateur clique sur l'index 1 (Favoris)
+              setState(() => _index = i);
+
+            case 2:
+            // Si l'utilisateur clique sur l'index 2 (Profil)
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+            );
+
+            default:
+              setState(() => _index = i);
+          }
+        },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: 'Accueil'),
           NavigationDestination(icon: Icon(Icons.explore), label: 'Explorer'),
@@ -63,3 +87,6 @@ class Carte extends StatelessWidget {
     );
   }
 }
+
+}
+

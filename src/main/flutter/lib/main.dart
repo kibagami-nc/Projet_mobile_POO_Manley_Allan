@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login.dart';
 
 void main() {
   runApp(const MonApp());
@@ -30,7 +31,27 @@ class _PagePrincipaleState extends State<PagePrincipale> {
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: (i) {
+          switch(i) {
+            case 0:
+            // Si l'utilisateur clique sur l'index 0 (Explorer)
+              setState(() => _index = i);
+
+            case 1:
+            // Si l'utilisateur clique sur l'index 1 (Favoris)
+              setState(() => _index = i);
+
+            case 2:
+            // Si l'utilisateur clique sur l'index 2 (Profil)
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+            );
+
+            default:
+              setState(() => _index = i);
+          }
+        },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.explore), label: 'Explorer'),
           NavigationDestination(icon: Icon(Icons.favorite), label: 'Favoris'),

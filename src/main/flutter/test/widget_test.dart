@@ -8,7 +8,7 @@ void main() {
     await tester.pumpWidget(const MonApp());
 
     expect(find.text('Accueil'), findsOneWidget);
-    expect(find.text('Recherche'), findsOneWidget);
+    expect(find.text('Explorer'), findsOneWidget);
     expect(find.text('Profil'), findsOneWidget);
   });
 }

@@ -62,3 +62,23 @@ class _MenuState extends State<Menu> {
     );
   }
 }
+
+class Carte extends StatelessWidget {
+  const Carte({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FlutterMap(
+      options: const MapOptions(
+        initialCenter: LatLng(-21.3, 165.5),
+        initialZoom: 7,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.example.poo_mobile_front',
+        ),
+      ],
+    );
+  }
+}

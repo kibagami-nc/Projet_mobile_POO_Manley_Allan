@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-
+import 'accueil.dart';
+import 'explorer.dart';
 import 'login.dart';
-
 
 void main() {
   runApp(const MonApp());
@@ -15,49 +13,46 @@ class MonApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: PagePrincipale(),
-    );
+    return const MaterialApp(home: Menu());
   }
 }
 
-class PagePrincipale extends StatefulWidget {
-  const PagePrincipale({super.key});
+/// Menu du bas : affiche la page correspondant à l'onglet sélectionné.
+class Menu extends StatefulWidget {
+  const Menu({super.key});
 
   @override
-  State<PagePrincipale> createState() => _PagePrincipaleState();
+  State<Menu> createState() => _MenuState();
 }
 
-class _PagePrincipaleState extends State<PagePrincipale> {
-  int _index = 0;
+class _MenuState extends State<Menu> {
+  int _ongletActif = 0;
+
+  // Une page par onglet, dans le même ordre que les destinations ci-dessous.
+  static const _pages = [
+    Accueil(),
+    Explorer(),
+  ];
+
+  void _changerOnglet(int index) {
+    // L'onglet "Profil" ouvre la page de connexion par-dessus le menu.
+    if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+      return;
+    }
+    setState(() => _ongletActif = index);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _index == 0 ? const Carte() : null,
+      body: _pages[_ongletActif],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) {
-          switch(i) {
-            case 0:
-            // Si l'utilisateur clique sur l'index 0 (Explorer)
-              setState(() => _index = i);
-
-            case 1:
-            // Si l'utilisateur clique sur l'index 1 (Favoris)
-              setState(() => _index = i);
-
-            case 2:
-            // Si l'utilisateur clique sur l'index 2 (Profil)
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginPage()),
-            );
-
-            default:
-              setState(() => _index = i);
-          }
-        },
+        selectedIndex: _ongletActif,
+        onDestinationSelected: _changerOnglet,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: 'Accueil'),
           NavigationDestination(icon: Icon(Icons.explore), label: 'Explorer'),

@@ -87,6 +87,3 @@ class Carte extends StatelessWidget {
     );
   }
 }
-
-}
-

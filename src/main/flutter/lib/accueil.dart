@@ -37,6 +37,12 @@ class Carte extends StatelessWidget {
       options: const MapOptions(
         initialCenter: LatLng(-21.3, 165.5),
         initialZoom: 7,
+        interactionOptions: InteractionOptions(
+          // Pas d'inertie après un glissement, ni de zoom animé au double-tap.
+          flags: InteractiveFlag.all &
+              ~InteractiveFlag.flingAnimation &
+              ~InteractiveFlag.doubleTapZoom,
+        ),
       ),
       children: [
         TileLayer(

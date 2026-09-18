@@ -7,12 +7,6 @@ class Explorer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(16, 25, 16, 16),
-          child: SearchBar(hintText: 'Rechercher...'),
-        ),
-      ],
     );
   }
 }

@@ -66,6 +66,7 @@ class MaNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
+      animationDuration: Duration.zero,
       selectedIndex: selectedIndex,
       onDestinationSelected: onDestinationSelected,
       destinations: const [

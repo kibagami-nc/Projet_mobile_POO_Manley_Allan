@@ -28,7 +28,6 @@ class Accueil extends StatelessWidget {
   }
 }
 
-/// Carte OpenStreetMap centrée sur la Nouvelle-Calédonie.
 class Carte extends StatelessWidget {
   const Carte({super.key});
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../widgets/route_sans_animation.dart';
 import 'accueil.dart';
 import 'explorer.dart';
 import 'login.dart';
+import '../widgets/ma_nav_bar.dart';
 
 class Menu extends StatefulWidget {
   final int indexInitial;
@@ -33,7 +35,7 @@ class _MenuState extends State<Menu> {
     if (index == 2) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
+        RouteSansAnimation(builder: (_) => const LoginPage()),
       );
       return;
     }
@@ -48,32 +50,6 @@ class _MenuState extends State<Menu> {
         selectedIndex: _ongletActif,
         onDestinationSelected: _changerOnglet,
       ),
-    );
-  }
-}
-
-/// Widget réutilisable dans d'autres vues comme LoginPage
-class MaNavBar extends StatelessWidget {
-  final int selectedIndex;
-  final ValueChanged<int> onDestinationSelected;
-
-  const MaNavBar({
-    super.key,
-    required this.selectedIndex,
-    required this.onDestinationSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return NavigationBar(
-      animationDuration: Duration.zero,
-      selectedIndex: selectedIndex,
-      onDestinationSelected: onDestinationSelected,
-      destinations: const [
-        NavigationDestination(icon: Icon(Icons.home), label: 'Accueil'),
-        NavigationDestination(icon: Icon(Icons.explore), label: 'Explorer'),
-        NavigationDestination(icon: Icon(Icons.person), label: 'Profil'),
-      ],
     );
   }
 }

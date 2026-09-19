@@ -1,5 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'menu.dart';
+import 'pages/menu.dart';
 
 void main() {
   runApp(const MonApp());
@@ -21,6 +22,18 @@ class _SansTransition extends PageTransitionsBuilder {
   }
 }
 
+/// Permet de faire défiler les listes en glissant à la souris (bureau),
+/// en plus du doigt et du pavé tactile.
+class _DefilementSouris extends MaterialScrollBehavior {
+  const _DefilementSouris();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        ...super.dragDevices,
+        PointerDeviceKind.mouse,
+      };
+}
+
 class MonApp extends StatelessWidget {
   const MonApp({super.key});
 
@@ -28,6 +41,7 @@ class MonApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const _DefilementSouris(),
       theme: ThemeData(
         // Aucune animation lors des changements de page.
         pageTransitionsTheme: PageTransitionsTheme(

@@ -75,7 +75,7 @@ class _RegisterPageState extends State<RegisterPage> {
               height: 32,         // Espace vertical total occupé par le widget (marges haut/bas incluses)
             ),
 
-            const Text('Dèjà client ?', style: TextStyle(fontSize: 28, color: Color.fromARGB(255, 255, 56, 92))),
+            const Text('Déjà client ?', style: TextStyle(fontSize: 28, color: Color.fromARGB(255, 255, 56, 92))),
             const SizedBox(height: 8),
             ElevatedButton(
               style: ElevatedButton.styleFrom(

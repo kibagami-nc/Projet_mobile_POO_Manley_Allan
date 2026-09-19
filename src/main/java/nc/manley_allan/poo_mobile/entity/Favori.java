@@ -1,4 +1,4 @@
-package nc.manley_allan.poo_mobile.data;
+package nc.manley_allan.poo_mobile.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -24,10 +24,10 @@ public class Utilisateur {
     private String email;
 
     @Column(name = "mot_de_passe")
-    private String mot_de_passe;
+    private String motDePasse;
 
     @Column(name = "date_inscription")
-    private LocalDate date_inscription;
+    private LocalDate dateInscription;
 
     @Column(name = "role")
     private String role;

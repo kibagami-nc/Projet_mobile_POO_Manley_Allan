@@ -18,11 +18,11 @@ public class Photo {
     @Column(name = "url")
     private String url;
     @Column(name = "taille_ko")
-    private int taille_ko;
+    private int tailleKo;
 
     // --- CLÉS ÉTRANGÈRES / RELATIONS ---
 
     @ManyToOne
-    @Column(name = "lieu_id")
-    private Lieu lieu_id;
+    @JoinColumn(name = "lieu_id")
+    private Lieu lieuId;
 }

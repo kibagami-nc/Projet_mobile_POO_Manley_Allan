@@ -37,6 +37,9 @@ dependencies:
   flutter_map: ^8.3.2
   latlong2: ^0.10.1
 
+  # Appels HTTP vers l'API Spring Boot.
+  http: ^1.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

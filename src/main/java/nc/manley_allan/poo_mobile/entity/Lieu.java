@@ -32,6 +32,6 @@ public class Lieu {
     // --- CLÉS ÉTRANGÈRES / RELATIONS ---
 
     @ManyToOne
-    @Column(name = "categorie_id")
+    @JoinColumn(name = "categorie_id")
     private Categorie categorie;
 }

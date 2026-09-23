@@ -3,9 +3,15 @@ import '../widgets/route_sans_animation.dart';
 import 'menu.dart';
 import '../widgets/ma_nav_bar.dart';
 import 'register.dart';
+import '../services/api_exception.dart';
+import '../services/auth_service.dart';
+import '../services/session.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+
+  final AuthService? authService;
+
+  const LoginPage({super.key, this.authService});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -15,6 +21,33 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isChecked = false;
+
+  late final _authService = widget.authService ?? AuthService();
+
+  @override
+  void dispose() {
+    if (widget.authService == null) _authService.fermer();
+    super.dispose();
+  }
+
+  Future<void> _seConnecter() async {
+    try {
+      final resultat = await _authService.connexion(
+        email: _emailController.text.trim(),
+        motDePasse: _passwordController.text,
+      );
+      Session.instance.ouvrir(token: resultat.token,
+          utilisateur: resultat.utilisateur,
+          seSouvenir: _isChecked);
+
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(context, RouteSansAnimation(
+          builder: (context) => const Menu()), (route) => false);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18), // Adjust horizontal and vertical space
               ),
-              onPressed: () {},
+              onPressed: _seConnecter,
               child: const Text(
                 'Se connecter',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Agrandit aussi le texte

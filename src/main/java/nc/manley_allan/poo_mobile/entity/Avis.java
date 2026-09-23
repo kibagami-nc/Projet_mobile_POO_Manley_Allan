@@ -24,10 +24,10 @@ public class Avis {
     private String commentaire;
 
     @Column(name = "date_publication")
-    private LocalDate date_publication;
+    private LocalDate datePublication;
 
-    @Column(name = "status")
-    private String status;
+    @Column(name = "statut")
+    private String statut;
 
     @Column(name = "anonyme")
     private boolean anonyme;

@@ -1,1 +1,9 @@
 target/
+
+# Tests
+src/test/
+src/main/flutter/test/
+
+.idea/caches/
+src/main/flutter/pubspec.lock
+src/main/flutter/pubspec.yaml

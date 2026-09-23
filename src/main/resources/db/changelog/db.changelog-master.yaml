@@ -33,7 +33,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -87,7 +87,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -117,7 +117,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -149,7 +149,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: categorie_id
-                  type: int
+                  type: bigint
                   constraints:
                     nullable: false
                     foreignKeyName: fk_lieu_categorie
@@ -189,7 +189,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -207,7 +207,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: lieu_id
-                  type: int
+                  type: bigint
                   constraints:
                     nullable: false
                     foreignKeyName: fk_photo_lieu
@@ -242,7 +242,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: utilisateur_id
-                  type: int
+                  type: bigint
                   constraints:
                     nullable: false
                     foreignKeyName: fk_favori_utilisateur
@@ -250,7 +250,7 @@ databaseChangeLog:
                     deleteCascade: true
               - column:
                   name: lieu_id
-                  type: int
+                  type: bigint
                   constraints:
                     nullable: false
                     foreignKeyName: fk_favori_lieu
@@ -283,7 +283,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
@@ -318,7 +318,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: lieu_id
-                  type: int
+                  type: bigint
                   constraints:
                     nullable: false
                     foreignKeyName: fk_avis_lieu
@@ -326,7 +326,7 @@ databaseChangeLog:
                     deleteCascade: true
               - column:
                   name: utilisateur_id
-                  type: int
+                  type: bigint
                   remarks: "NULL lorsque l'avis a été anonymisé (suppression de compte RGPD)"
                   constraints:
                     nullable: true
@@ -398,3 +398,57 @@ databaseChangeLog:
       rollback:
         - delete:
             tableName: categorie
+
+  # ---------------------------------------------------------------------------
+  # 8. Alignement des colonnes de date sur les entites JPA
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 8-dates-en-date
+      author: manley.bouille
+      comment: "Utilisateur.dateInscription et Avis.date_publication sont des LocalDate : les colonnes passent de timestamp a date"
+      changes:
+        - dropDefaultValue:
+            tableName: utilisateur
+            columnName: date_inscription
+        - modifyDataType:
+            tableName: utilisateur
+            columnName: date_inscription
+            newDataType: date
+        - addDefaultValue:
+            tableName: utilisateur
+            columnName: date_inscription
+            defaultValueComputed: CURRENT_DATE
+        - dropDefaultValue:
+            tableName: avis
+            columnName: date_publication
+        - modifyDataType:
+            tableName: avis
+            columnName: date_publication
+            newDataType: date
+        - addDefaultValue:
+            tableName: avis
+            columnName: date_publication
+            defaultValueComputed: CURRENT_DATE
+      rollback:
+        - dropDefaultValue:
+            tableName: utilisateur
+            columnName: date_inscription
+        - modifyDataType:
+            tableName: utilisateur
+            columnName: date_inscription
+            newDataType: timestamp
+        - addDefaultValue:
+            tableName: utilisateur
+            columnName: date_inscription
+            defaultValueComputed: CURRENT_TIMESTAMP
+        - dropDefaultValue:
+            tableName: avis
+            columnName: date_publication
+        - modifyDataType:
+            tableName: avis
+            columnName: date_publication
+            newDataType: timestamp
+        - addDefaultValue:
+            tableName: avis
+            columnName: date_publication
+            defaultValueComputed: CURRENT_TIMESTAMP

@@ -29,8 +29,6 @@ public class Lieu {
     @Column(name = "longitude")
     private double longitude;
 
-    // --- CLÉS ÉTRANGÈRES / RELATIONS ---
-
     @ManyToOne
     @JoinColumn(name = "categorie_id")
     private Categorie categorie;

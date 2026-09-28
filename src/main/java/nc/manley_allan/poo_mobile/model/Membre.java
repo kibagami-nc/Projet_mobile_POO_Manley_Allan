@@ -9,6 +9,5 @@ import nc.manley_allan.poo_mobile.entity.Utilisateur;
 @AllArgsConstructor
 public class Membre extends Visiteur {
 
-    /** Compte persisté associé à ce membre. */
     private Utilisateur utilisateur;
 }

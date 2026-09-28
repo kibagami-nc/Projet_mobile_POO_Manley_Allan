@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'accueil.dart';
 import 'explorer.dart';
 import 'login.dart';
-import 'profil.dart';
 import '../widgets/ma_nav_bar.dart';
 
 // PS: ce fichier et le fichier ma_nav_bar.dart son utiliser pour la bare de navigation en bas de l'écran,
@@ -27,7 +26,6 @@ class _MenuState extends State<Menu> {
     Accueil(),     // Index 0
     Explorer(),    // Index 1
     LoginPage(),   // Index 2
-    ProfilPage(),  // Index 3
   ];
 
   @override

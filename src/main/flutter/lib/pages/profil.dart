@@ -136,19 +136,6 @@ class _ProfilPageState extends State<ProfilPage> {
           ],
         ),
       ),
-
-      bottomNavigationBar: MaNavBar(
-        selectedIndex: 2,
-        onDestinationSelected: (index) {
-          if (index != 2) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              RouteSansAnimation(builder: (context) => Menu(indexInitial: index)),
-                  (route) => false,
-            );
-          }
-        },
-      ),
     );
   }
 }

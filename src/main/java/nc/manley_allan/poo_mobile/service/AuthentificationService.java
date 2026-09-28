@@ -6,7 +6,6 @@ import nc.manley_allan.poo_mobile.repository.UtilisateurRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class AuthentificationService {
@@ -24,7 +23,6 @@ public class AuthentificationService {
                 .filter(utilisateur -> motDePasse.equals(utilisateur.getMotDePasse()))
 
                 .map(utilisateur -> new ConnexionReponse(
-                        UUID.randomUUID().toString(),
                         UtilisateurDto.from(utilisateur)));
     }
 }

@@ -32,12 +32,12 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _seConnecter() async {
     try {
-      final resultat = await _authService.connexion(
+      final utilisateur = await _authService.connexion(
         email: _emailController.text.trim(),
         motDePasse: _passwordController.text,
       );
-      Session.instance.ouvrir(token: resultat.token,
-          utilisateur: resultat.utilisateur,
+      Session.instance.ouvrir(
+          utilisateur: utilisateur,
           seSouvenir: _isChecked);
 
       if (!mounted) return;
@@ -141,19 +141,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-      ),
-
-      bottomNavigationBar: MaNavBar(
-        selectedIndex: 2,
-        onDestinationSelected: (index) {
-          if (index != 2) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              RouteSansAnimation(builder: (context) => Menu(indexInitial: index)),
-              (route) => false,
-            );
-          }
-        },
       ),
     );
   }

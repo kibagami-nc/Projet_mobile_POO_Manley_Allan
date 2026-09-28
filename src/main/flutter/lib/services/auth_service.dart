@@ -8,14 +8,6 @@ import '../models/utilisateur.dart';
 import 'api_config.dart';
 import 'api_exception.dart';
 
-/// Ce que renvoie une connexion reussie : le jeton et le compte associe.
-class ResultatConnexion {
-  final String token;
-  final Utilisateur utilisateur;
-
-  const ResultatConnexion({required this.token, required this.utilisateur});
-}
-
 class AuthService {
   final http.Client _client;
 
@@ -27,9 +19,9 @@ class AuthService {
 
   /// Envoie les identifiants a l'API.
   ///
-  /// Renvoie le jeton et le compte, ou leve une [ApiException] dont le
+  /// Renvoie le compte, ou leve une [ApiException] dont le
   /// `message` est directement affichable.
-  Future<ResultatConnexion> connexion({
+  Future<Utilisateur> connexion({
     required String email,
     required String motDePasse,
   }) async {
@@ -68,7 +60,7 @@ class AuthService {
       'Serveur injoignable (${ApiConfig.baseUrl}).\n'
       'Verifiez que l\'API Spring Boot est demarree.';
 
-  ResultatConnexion _lireReponse(http.Response reponse) {
+  Utilisateur _lireReponse(http.Response reponse) {
     final code = reponse.statusCode;
 
     if (code == 200 || code == 201) {
@@ -103,7 +95,7 @@ class AuthService {
     );
   }
 
-  ResultatConnexion _extraire(http.Response reponse) {
+  Utilisateur _extraire(http.Response reponse) {
     final Map<String, dynamic> corps;
     try {
       // bodyBytes + utf8 : sinon les accents des messages serveur sont casses.
@@ -112,21 +104,13 @@ class AuthService {
       throw const ApiException('Reponse illisible envoyee par le serveur.');
     }
 
-    final token = (corps['token'] ?? corps['accessToken']) as String?;
-    if (token == null || token.isEmpty) {
-      throw const ApiException('Le serveur n\'a pas renvoye de jeton.');
-    }
-
-    // Le compte peut etre imbrique, ou a plat a cote du jeton.
+    // Le compte peut etre imbrique, ou a plat.
     final brut = corps['utilisateur'] ?? corps['user'] ?? corps;
     if (brut is! Map<String, dynamic>) {
       throw const ApiException('Compte absent de la reponse du serveur.');
     }
 
-    return ResultatConnexion(
-      token: token,
-      utilisateur: Utilisateur.fromJson(brut),
-    );
+    return Utilisateur.fromJson(brut);
   }
 
   String? _messageServeur(http.Response reponse) {

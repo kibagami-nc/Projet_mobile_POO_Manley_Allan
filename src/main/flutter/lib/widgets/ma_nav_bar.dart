@@ -19,7 +19,7 @@ class MaNavBar extends StatelessWidget {
       destinations: const [
         NavigationDestination(icon: Icon(Icons.home), label: 'Accueil'),
         NavigationDestination(icon: Icon(Icons.explore), label: 'Explorer'),
-        NavigationDestination(icon: Icon(Icons.login), label: 'Connexion'),
+        NavigationDestination(icon: Icon(Icons.account_circle), label: 'Mon compte'),
       ],
     );
   }

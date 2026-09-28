@@ -32,12 +32,11 @@ public class Avis {
     @Column(name = "anonyme")
     private boolean anonyme;
 
-    // --- CLÉS ÉTRANGÈRES / RELATIONS ---
     @ManyToOne
-    @JoinColumn(name = "lieu_id") // Indique le nom de la colonne FK en BDD
+    @JoinColumn(name = "lieu_id")
     private Lieu lieu;
 
     @ManyToOne
-    @JoinColumn(name = "utilisateur_id") // Indique le nom de la colonne FK en BDD
+    @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
 }

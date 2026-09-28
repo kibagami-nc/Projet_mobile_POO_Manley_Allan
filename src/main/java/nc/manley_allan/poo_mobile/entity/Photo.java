@@ -20,8 +20,6 @@ public class Photo {
     @Column(name = "taille_ko")
     private int tailleKo;
 
-    // --- CLÉS ÉTRANGÈRES / RELATIONS ---
-
     @ManyToOne
     @JoinColumn(name = "lieu_id")
     private Lieu lieuId;

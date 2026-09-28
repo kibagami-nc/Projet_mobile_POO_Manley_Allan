@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Widget réutilisable dans d'autres vues comme LoginPage
 class MaNavBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
@@ -20,7 +19,7 @@ class MaNavBar extends StatelessWidget {
       destinations: const [
         NavigationDestination(icon: Icon(Icons.home), label: 'Accueil'),
         NavigationDestination(icon: Icon(Icons.explore), label: 'Explorer'),
-        NavigationDestination(icon: Icon(Icons.person), label: 'Profil'),
+        NavigationDestination(icon: Icon(Icons.login), label: 'Connexion'),
       ],
     );
   }

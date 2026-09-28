@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../widgets/route_sans_animation.dart';
 import 'accueil.dart';
 import 'explorer.dart';
 import 'login.dart';
 import '../widgets/ma_nav_bar.dart';
+
+// PS: ce fichier et le fichier ma_nav_bar.dart son utiliser pour la bare de navigation en bas de l'écran,
+// qui permet de naviguer entre les différentes pages de l'application.
 
 class Menu extends StatefulWidget {
   final int indexInitial;
@@ -20,25 +22,19 @@ class Menu extends StatefulWidget {
 class _MenuState extends State<Menu> {
   late int _ongletActif;
 
+  static const _pages = [
+    Accueil(),     // Index 0
+    Explorer(),    // Index 1
+    LoginPage(),   // Index 2
+  ];
+
   @override
   void initState() {
     super.initState();
     _ongletActif = widget.indexInitial;
   }
 
-  static const _pages = [
-    Accueil(),
-    Explorer(),
-  ];
-
   void _changerOnglet(int index) {
-    if (index == 2) {
-      Navigator.push(
-        context,
-        RouteSansAnimation(builder: (_) => const LoginPage()),
-      );
-      return;
-    }
     setState(() => _ongletActif = index);
   }
 

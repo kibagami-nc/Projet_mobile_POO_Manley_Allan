@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/route_sans_animation.dart';
 import 'menu.dart';
-import '../widgets/ma_nav_bar.dart';
 import 'register.dart';
 import '../services/api_exception.dart';
 import '../services/auth_service.dart';
@@ -141,19 +140,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-      ),
-
-      bottomNavigationBar: MaNavBar(
-        selectedIndex: 2,
-        onDestinationSelected: (index) {
-          if (index != 2) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              RouteSansAnimation(builder: (context) => Menu(indexInitial: index)),
-              (route) => false,
-            );
-          }
-        },
       ),
     );
   }

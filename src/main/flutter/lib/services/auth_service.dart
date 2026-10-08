@@ -19,11 +19,10 @@ class ResultatConnexion {
 class AuthService {
   final http.Client _client;
 
-  /// Le client est injectable pour pouvoir tester sans serveur.
   AuthService({http.Client? client}) : _client = client ?? http.Client();
 
-  /// Chemin de la route de connexion.
   static const String cheminLogin = '/api/auth/login';
+  static const String cheminRegister = '/api/auth/register';
 
   /// Envoie les identifiants a l'API.
   ///
@@ -59,6 +58,39 @@ class AuthService {
     return _lireReponse(reponse);
   }
 
+  /// Envoie les identifiants pour l'inscription.
+  Future<ResultatConnexion> inscription({
+    required String nom,
+    required String email,
+    required String motDePasse,
+  }) async {
+    final http.Response reponse;
+
+    try {
+      reponse = await _client
+          .post(
+        ApiConfig.uri(cheminRegister),
+        headers: ApiConfig.enTetesJson,
+        body: jsonEncode({
+          'nom': nom.trim(),
+          'email': email.trim(),
+          'motDePasse': motDePasse,
+        }),
+      )
+          .timeout(ApiConfig.delaiMax);
+    } on TimeoutException {
+      throw const ApiException(
+        'Le serveur met trop de temps a repondre. Reessayez.',
+      );
+    } on SocketException {
+      throw ApiException(_messageInjoignable());
+    } on http.ClientException {
+      throw ApiException(_messageInjoignable());
+    }
+
+    return _lireReponse(reponse, chemin: cheminRegister);
+  }
+
   /// Libere les ressources du client HTTP.
   void fermer() => _client.close();
 
@@ -68,11 +100,18 @@ class AuthService {
       'Serveur injoignable (${ApiConfig.baseUrl}).\n'
       'Verifiez que l\'API Spring Boot est demarree.';
 
-  ResultatConnexion _lireReponse(http.Response reponse) {
+  ResultatConnexion _lireReponse(http.Response reponse, {String chemin = cheminLogin}) {
     final code = reponse.statusCode;
 
     if (code == 200 || code == 201) {
       return _extraire(reponse);
+    }
+
+    if (code == 409) {
+      throw const ApiException(
+        'Un compte existe deja avec cet e-mail.',
+        codeHttp: 409,
+      );
     }
 
     if (code == 401 || code == 403) {
@@ -83,8 +122,8 @@ class AuthService {
     }
 
     if (code == 404) {
-      throw const ApiException(
-        'La route $cheminLogin n\'existe pas encore sur l\'API.',
+      throw ApiException(
+        'La route $chemin n\'existe pas encore sur l\'API.',
         codeHttp: 404,
       );
     }
@@ -96,9 +135,8 @@ class AuthService {
       );
     }
 
-    // 400 et autres : on affiche le message du serveur s'il en fournit un.
     throw ApiException(
-      _messageServeur(reponse) ?? 'Connexion refusee (erreur $code).',
+      _messageServeur(reponse) ?? 'Requete refusee (erreur $code).',
       codeHttp: code,
     );
   }

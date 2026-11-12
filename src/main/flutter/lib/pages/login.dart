@@ -31,12 +31,13 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _seConnecter() async {
     try {
-      final utilisateur = await _authService.connexion(
+      final resultat = await _authService.connexion(
         email: _emailController.text.trim(),
         motDePasse: _passwordController.text,
       );
       Session.instance.ouvrir(
-          utilisateur: utilisateur,
+          token: resultat.token,
+          utilisateur: resultat.utilisateur,
           seSouvenir: _isChecked);
 
       if (!mounted) return;

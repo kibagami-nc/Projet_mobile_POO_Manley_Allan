@@ -5,6 +5,7 @@ import nc.manley_allan.poo_mobile.controller.dto.RegisterReponse;
 import nc.manley_allan.poo_mobile.controller.dto.UtilisateurDto;
 import nc.manley_allan.poo_mobile.entity.Utilisateur;
 import nc.manley_allan.poo_mobile.enums.Role;
+import nc.manley_allan.poo_mobile.config.JwtService;
 import nc.manley_allan.poo_mobile.repository.UtilisateurRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,13 @@ public class AuthentificationService {
 
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder encodeurMotDePasse;
+    private final JwtService jwtService;
 
-    public AuthentificationService(UtilisateurRepository utilisateurRepository, PasswordEncoder encodeurMotDePasse) {
+    public AuthentificationService(UtilisateurRepository utilisateurRepository, PasswordEncoder encodeurMotDePasse,
+                                   JwtService jwtService) {
         this.utilisateurRepository = utilisateurRepository;
         this.encodeurMotDePasse = encodeurMotDePasse;
+        this.jwtService = jwtService;
     }
 
     public Optional<ConnexionReponse> connexion(String email, String motDePasse) {
@@ -29,6 +33,7 @@ public class AuthentificationService {
                 // Compare le mot de passe saisi à l'empreinte BCrypt enregistrée
                 .filter(utilisateur -> encodeurMotDePasse.matches(motDePasse, utilisateur.getMotDePasse()))
                 .map(utilisateur -> new ConnexionReponse(
+                        jwtService.creerJeton(utilisateur),
                         UtilisateurDto.from(utilisateur)));
     }
 
@@ -53,6 +58,7 @@ public class AuthentificationService {
 
         // Connecter immédiatement le nouvel utilisateur
         return Optional.of(new ConnexionReponse(
+                jwtService.creerJeton(utilisateurSauvegarde),
                 UtilisateurDto.from(utilisateurSauvegarde)
         ));
     }

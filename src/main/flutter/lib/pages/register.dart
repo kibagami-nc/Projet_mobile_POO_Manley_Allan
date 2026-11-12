@@ -60,13 +60,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => _enCours = true);
     try {
-      final utilisateur = await _authService.inscription(
+      final resultat = await _authService.inscription(
         nom: nom,
         email: email,
         motDePasse: motDePasse,
       );
       // Compte créé : le nouveau membre est connecté directement
-      Session.instance.ouvrir(utilisateur: utilisateur);
+      Session.instance.ouvrir(token: resultat.token, utilisateur: resultat.utilisateur);
 
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(context, RouteSansAnimation(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'accueil.dart';
 import 'explorer.dart';
 import 'login.dart';
+import 'profil.dart';
+import '../services/session.dart';
 import '../widgets/ma_nav_bar.dart';
 
 // PS: ce fichier et le fichier ma_nav_bar.dart son utiliser pour la bare de navigation en bas de l'écran,
@@ -22,11 +24,12 @@ class Menu extends StatefulWidget {
 class _MenuState extends State<Menu> {
   late int _ongletActif;
 
-  static const _pages = [
-    Accueil(),     // Index 0
-    Explorer(),    // Index 1
-    LoginPage(),   // Index 2
-  ];
+  Widget _page(int index) => switch (index) {
+        0 => const Accueil(),
+        1 => const Explorer(),
+        // Onglet "Mon compte" : la connexion, ou le profil quand un membre est connecté
+        _ => Session.instance.estConnecte ? const ProfilPage() : const LoginPage(),
+      };
 
   @override
   void initState() {
@@ -41,7 +44,11 @@ class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_ongletActif],
+      // Redessiné à la connexion et à la déconnexion
+      body: ListenableBuilder(
+        listenable: Session.instance,
+        builder: (context, _) => _page(_ongletActif),
+      ),
       bottomNavigationBar: MaNavBar(
         selectedIndex: _ongletActif,
         onDestinationSelected: _changerOnglet,

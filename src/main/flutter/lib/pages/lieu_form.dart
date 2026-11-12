@@ -31,6 +31,7 @@ class _LieuFormPageState extends State<LieuFormPage> {
   late int? _categorieId = widget.lieu?.categorie?.id;
   late String? _province = widget.lieu?.province;
   bool _enregistrement = false;
+  AutovalidateMode _verificationContinue = AutovalidateMode.disabled;
 
   static const _rouge = Color.fromARGB(255, 255, 56, 92);
 
@@ -64,12 +65,12 @@ class _LieuFormPageState extends State<LieuFormPage> {
   double? _nombre(String texte) => double.tryParse(texte.trim().replaceAll(',', '.'));
 
   /// Vérifie qu'une coordonnée est un nombre compris dans les limites de la Nouvelle-Calédonie.
+  /// Message court : le champ ne fait que la moitié de la largeur de l'écran.
   String? _verifierCoordonnee(String? texte, double min, double max, String nom) {
     final valeur = _nombre(texte ?? '');
-    if (valeur == null) return 'La $nom est obligatoire (nombre décimal)';
+    if (valeur == null) return 'La $nom est obligatoire';
     if (valeur < min || valeur > max) {
-      return 'La $nom doit être comprise entre ${_enFrancais(min)} et ${_enFrancais(max)} '
-          '(Nouvelle-Calédonie)';
+      return 'Entre ${_enFrancais(min)} et ${_enFrancais(max)} (Nouvelle-Calédonie)';
     }
     return null;
   }
@@ -79,7 +80,11 @@ class _LieuFormPageState extends State<LieuFormPage> {
       (valeur % 1 == 0 ? valeur.toInt().toString() : valeur.toString()).replaceAll('.', ',');
 
   Future<void> _enregistrer() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      // Après un premier essai refusé, les erreurs se mettent à jour pendant la saisie
+      setState(() => _verificationContinue = AutovalidateMode.onUserInteraction);
+      return;
+    }
     final donnees = {
       'nom': _nomController.text.trim(),
       'description': _descriptionController.text.trim(),
@@ -115,6 +120,7 @@ class _LieuFormPageState extends State<LieuFormPage> {
       appBar: AppBar(title: Text(widget.lieu == null ? 'Ajouter un lieu' : 'Modifier le lieu')),
       body: Form(
         key: _formKey,
+        autovalidateMode: _verificationContinue,
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [

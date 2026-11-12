@@ -1,47 +1,52 @@
-// ------------------------------------
-//
-//  Le contenue de ce fichier est temporaire
-//  A refaire en interrogeant la BDD
-//
-// ------------------------------------
+import 'categorie.dart';
 
+/// Lieu touristique renvoye par l'API (GET /api/lieux).
 class Lieu {
+  final int id;
   final String nom;
   final String description;
+
+  /// `SUD`, `NORD` ou `ILES`, d'apres l'enumeration `Province` cote back.
   final String province;
+  final double latitude;
+  final double longitude;
+  final Categorie? categorie;
 
   const Lieu({
+    required this.id,
     required this.nom,
     required this.description,
     required this.province,
+    required this.latitude,
+    required this.longitude,
+    this.categorie,
   });
+
+  factory Lieu.fromJson(Map<String, dynamic> json) {
+    final categorie = json['categorie'];
+    return Lieu(
+      id: (json['id'] as num).toInt(),
+      nom: json['nom'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      province: json['province'] as String? ?? '',
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      categorie: categorie is Map<String, dynamic> ? Categorie.fromJson(categorie) : null,
+    );
+  }
+
+  /// Nom affichable de la province (memes libelles que l'enumeration Province de l'API).
+  String get provinceLibelle => switch (province) {
+        'SUD' => 'Province Sud',
+        'NORD' => 'Province Nord',
+        'ILES' => 'Îles Loyauté',
+        _ => province,
+      };
 }
 
-/// Favoris d'exemple, en attendant les données du backend.
-const List<Lieu> lieuxFavoris = [
-  Lieu(
-    nom: 'Baie des Citrons',
-    description: 'Plage en ville, idéale pour la baignade.',
-    province: 'Province Sud',
-  ),
-  Lieu(
-    nom: 'Île des Pins',
-    description: 'Piscine naturelle et baie d’Oro.',
-    province: 'Province Sud',
-  ),
-  Lieu(
-    nom: 'Cœur de Voh',
-    description: 'Mangrove en forme de cœur, vue du ciel.',
-    province: 'Province Nord',
-  ),
-  Lieu(
-    nom: 'Poé',
-    description: 'Lagon turquoise et plage de sable blanc.',
-    province: 'Province Sud',
-  ),
-  Lieu(
-    nom: 'Lifou',
-    description: 'Falaises de Jokin et plage de Luengoni.',
-    province: 'Îles Loyauté',
-  ),
-];
+/// Les trois provinces, pour les filtres et le formulaire d'administration.
+const Map<String, String> provinces = {
+  'SUD': 'Province Sud',
+  'NORD': 'Province Nord',
+  'ILES': 'Îles Loyauté',
+};

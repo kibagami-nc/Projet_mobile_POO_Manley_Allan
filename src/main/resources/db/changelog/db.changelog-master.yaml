@@ -665,3 +665,123 @@ databaseChangeLog:
         - delete:
             tableName: utilisateur
             where: "email IN ('admin@caillou-evasion.nc', 'membre@caillou-evasion.nc')"
+
+  # ---------------------------------------------------------------------------
+  # 12. SQL avancé (PL/pgSQL) : 2 vues, 2 déclencheurs, 2 procédures stockées
+  #     Exécuté seulement sur PostgreSQL (les tests sur H2 l'ignorent).
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 12-sql-avance
+      author: exigences-e6
+      comment: "Vues, déclencheurs et procédures stockées — S1 (avis) et M5 (RGPD)"
+      dbms: postgresql
+      changes:
+        # Vue 1 : note moyenne et nombre d'avis publiés de chaque lieu (Lieu.noteMoyenne du diagramme de classes)
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE OR REPLACE VIEW vue_lieu_note AS
+              SELECT l.id AS lieu_id,
+                     l.nom,
+                     COUNT(a.id) AS nb_avis,
+                     ROUND(AVG(a.note), 1) AS note_moyenne
+              FROM lieu l
+              LEFT JOIN avis a ON a.lieu_id = l.id AND a.statut = 'PUBLIE'
+              GROUP BY l.id, l.nom
+        # Vue 2 : avis en attente de modération, pour l'administrateur
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE OR REPLACE VIEW vue_avis_en_attente AS
+              SELECT a.id,
+                     l.nom AS lieu,
+                     COALESCE(u.nom, 'Anonyme') AS auteur,
+                     a.note,
+                     a.commentaire,
+                     a.date_publication
+              FROM avis a
+              JOIN lieu l ON l.id = a.lieu_id
+              LEFT JOIN utilisateur u ON u.id = a.utilisateur_id
+              WHERE a.statut = 'EN_ATTENTE'
+              ORDER BY a.date_publication, a.id
+        # Déclencheur 1 : quand un compte est supprimé, ses avis restent mais deviennent anonymes (RGPD)
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE OR REPLACE FUNCTION anonymiser_avis() RETURNS TRIGGER AS $$
+              BEGIN
+                  UPDATE avis SET utilisateur_id = NULL, anonyme = TRUE WHERE utilisateur_id = OLD.id;
+                  RETURN OLD;
+              END;
+              $$ LANGUAGE plpgsql
+        - sql:
+            sql: |
+              DROP TRIGGER IF EXISTS trg_anonymiser_avis ON utilisateur;
+              CREATE TRIGGER trg_anonymiser_avis
+                  BEFORE DELETE ON utilisateur
+                  FOR EACH ROW EXECUTE FUNCTION anonymiser_avis();
+        # Déclencheur 2 : un avis dont la note ou le commentaire change repasse en modération
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE OR REPLACE FUNCTION remettre_avis_en_attente() RETURNS TRIGGER AS $$
+              BEGIN
+                  IF NEW.note <> OLD.note OR NEW.commentaire IS DISTINCT FROM OLD.commentaire THEN
+                      NEW.statut := 'EN_ATTENTE';
+                  END IF;
+                  RETURN NEW;
+              END;
+              $$ LANGUAGE plpgsql
+        - sql:
+            sql: |
+              DROP TRIGGER IF EXISTS trg_avis_modifie ON avis;
+              CREATE TRIGGER trg_avis_modifie
+                  BEFORE UPDATE OF note, commentaire ON avis
+                  FOR EACH ROW EXECUTE FUNCTION remettre_avis_en_attente();
+        # Procédure 1 : modérer un avis en attente (PUBLIE ou REJETE)
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE OR REPLACE PROCEDURE moderer_avis(p_avis_id BIGINT, p_decision VARCHAR)
+              LANGUAGE plpgsql AS $$
+              BEGIN
+                  IF p_decision NOT IN ('PUBLIE', 'REJETE') THEN
+                      RAISE EXCEPTION 'Décision inconnue : % (PUBLIE ou REJETE)', p_decision;
+                  END IF;
+                  UPDATE avis SET statut = p_decision WHERE id = p_avis_id AND statut = 'EN_ATTENTE';
+                  IF NOT FOUND THEN
+                      RAISE EXCEPTION 'Aucun avis en attente avec l''identifiant %', p_avis_id;
+                  END IF;
+              END;
+              $$
+        # Procédure 2 : supprimer un compte sur demande (droit à l'effacement), sauf un administrateur
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE OR REPLACE PROCEDURE supprimer_compte(p_email VARCHAR)
+              LANGUAGE plpgsql AS $$
+              DECLARE
+                  v_role VARCHAR;
+              BEGIN
+                  SELECT role INTO v_role FROM utilisateur WHERE email = LOWER(p_email);
+                  IF NOT FOUND THEN
+                      RAISE EXCEPTION 'Aucun compte avec l''e-mail %', p_email;
+                  END IF;
+                  IF v_role = 'ADMIN' THEN
+                      RAISE EXCEPTION 'Un compte administrateur ne peut pas être supprimé par cette procédure';
+                  END IF;
+                  -- Les favoris partent en cascade ; trg_anonymiser_avis garde ses avis, anonymes
+                  DELETE FROM utilisateur WHERE email = LOWER(p_email);
+              END;
+              $$
+      rollback:
+        - sql:
+            sql: |
+              DROP PROCEDURE IF EXISTS supprimer_compte(VARCHAR);
+              DROP PROCEDURE IF EXISTS moderer_avis(BIGINT, VARCHAR);
+              DROP TRIGGER IF EXISTS trg_avis_modifie ON avis;
+              DROP FUNCTION IF EXISTS remettre_avis_en_attente();
+              DROP TRIGGER IF EXISTS trg_anonymiser_avis ON utilisateur;
+              DROP FUNCTION IF EXISTS anonymiser_avis();
+              DROP VIEW IF EXISTS vue_avis_en_attente;
+              DROP VIEW IF EXISTS vue_lieu_note;

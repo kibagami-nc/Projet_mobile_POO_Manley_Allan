@@ -9,6 +9,6 @@ void main() {
 
     expect(find.text('Accueil'), findsOneWidget);
     expect(find.text('Explorer'), findsOneWidget);
-    expect(find.text('Profil'), findsOneWidget);
+    expect(find.text('Connexion'), findsOneWidget);
   });
 }

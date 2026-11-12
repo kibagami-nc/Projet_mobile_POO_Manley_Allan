@@ -33,6 +33,10 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Catalogue : lecture ouverte à tous les visiteurs (M1, M2, M3)
+                        .requestMatchers(HttpMethod.GET, "/api/lieux/**", "/api/categories/**").permitAll()
+                        // Ajouter, modifier, supprimer un lieu ou une catégorie : administrateurs seulement (M7)
+                        .requestMatchers("/api/lieux/**", "/api/categories/**").hasRole("ADMIN")
                         // Tout le reste : il faut être connecté (jeton valide)
                         .anyRequest().authenticated())
 

@@ -472,3 +472,196 @@ databaseChangeLog:
               UPDATE utilisateur
               SET mot_de_passe = crypt(mot_de_passe, gen_salt('bf', 10))
               WHERE mot_de_passe NOT LIKE '$2%'
+
+  # ---------------------------------------------------------------------------
+  # 10. Les 16 lieux emblématiques du cahier des charges (3 provinces)
+  #     Coordonnées GPS approximatives, à vérifier par l'agence.
+  #     Province : valeur de l'énumération Java Province (SUD, NORD, ILES).
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 10-seed-lieux
+      author: exigences-e6
+      comment: "Jeu de données initial : 16 lieux emblématiques — M1"
+      changes:
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Parc zoologique et forestier Michel-Corbasson" }
+              - column: { name: description, value: "Parc zoologique et forestier de Nouméa : oiseaux endémiques, dont le cagou, et sentiers en forêt." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -22.2525 }
+              - column: { name: longitude, valueNumeric: 166.4705 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Randonnée')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Centre culturel Tjibaou" }
+              - column: { name: description, value: "Centre de la culture kanak conçu par Renzo Piano, sur la presqu'île de Tina à Nouméa." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -22.2553 }
+              - column: { name: longitude, valueNumeric: 166.4889 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Site culturel')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Phare Amédée" }
+              - column: { name: description, value: "Phare métallique allumé en 1865 sur l'îlot Amédée, au large de Nouméa." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -22.4772 }
+              - column: { name: longitude, valueNumeric: 166.4672 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Site culturel')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Parc provincial de la Rivière Bleue" }
+              - column: { name: description, value: "Forêt humide et maquis minier, avec la forêt noyée du lac de Yaté." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -22.1050 }
+              - column: { name: longitude, valueNumeric: 166.6470 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Randonnée')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Chutes de la Madeleine" }
+              - column: { name: description, value: "Cascade sur la rivière des Lacs, au cœur de la Plaine des Lacs du Grand Sud." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -22.2290 }
+              - column: { name: longitude, valueNumeric: 166.8470 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Cascade')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Roche Percée et le Bonhomme" }
+              - column: { name: description, value: "Rocher percé et silhouette du Bonhomme, au bord de la plage de la Roche Percée à Bourail." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -21.6060 }
+              - column: { name: longitude, valueNumeric: 165.4560 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Point de vue')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Plage de Poé" }
+              - column: { name: description, value: "Longue plage de sable blanc au bord du lagon, idéale pour la baignade." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -21.6150 }
+              - column: { name: longitude, valueNumeric: 165.3920 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Plage')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Fort Téremba" }
+              - column: { name: description, value: "Ancien fort et site du bagne du XIXe siècle, restauré et ouvert à la visite, à Moindou." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -21.7370 }
+              - column: { name: longitude, valueNumeric: 165.6720 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Site culturel')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Piscine naturelle de la baie d'Oro" }
+              - column: { name: description, value: "Bassin d'eau de mer calme et transparente, protégé par les rochers, à l'Île des Pins." }
+              - column: { name: province, value: "SUD" }
+              - column: { name: latitude, valueNumeric: -22.5560 }
+              - column: { name: longitude, valueNumeric: 167.5300 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Plage')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Cœur de Voh" }
+              - column: { name: description, value: "Mangrove en forme de cœur, célèbre vue du ciel." }
+              - column: { name: province, value: "NORD" }
+              - column: { name: latitude, valueNumeric: -20.9358 }
+              - column: { name: longitude, valueNumeric: 164.6603 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Point de vue')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "La Poule de Hienghène" }
+              - column: { name: description, value: "Rocher de calcaire noir en forme de poule couveuse, dans la baie de Hienghène." }
+              - column: { name: province, value: "NORD" }
+              - column: { name: latitude, valueNumeric: -20.6760 }
+              - column: { name: longitude, valueNumeric: 164.9540 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Point de vue')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Mont Panié" }
+              - column: { name: description, value: "Plus haut sommet de la Nouvelle-Calédonie (environ 1 628 m), sur la côte Est." }
+              - column: { name: province, value: "NORD" }
+              - column: { name: latitude, valueNumeric: -20.5800 }
+              - column: { name: longitude, valueNumeric: 164.7650 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Randonnée')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Plage de Tiéti" }
+              - column: { name: description, value: "Plage de sable blanc de Poindimié, sur la côte Est." }
+              - column: { name: province, value: "NORD" }
+              - column: { name: latitude, valueNumeric: -20.9240 }
+              - column: { name: longitude, valueNumeric: 165.3340 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Plage')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Falaises de Jokin" }
+              - column: { name: description, value: "Falaises de calcaire au-dessus d'un lagon turquoise, au nord de Lifou." }
+              - column: { name: province, value: "ILES" }
+              - column: { name: latitude, valueNumeric: -20.8010 }
+              - column: { name: longitude, valueNumeric: 167.1320 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Point de vue')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Pont de Mouli" }
+              - column: { name: description, value: "Pont reliant Ouvéa à Mouli, au-dessus d'une passe aux eaux turquoise." }
+              - column: { name: province, value: "ILES" }
+              - column: { name: latitude, valueNumeric: -20.7010 }
+              - column: { name: longitude, valueNumeric: 166.4130 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Plage')" }
+        - insert:
+            tableName: lieu
+            columns:
+              - column: { name: nom, value: "Aquarium naturel de Maré" }
+              - column: { name: description, value: "Bassin naturel relié à la mer, où l'on observe poissons et tortues." }
+              - column: { name: province, value: "ILES" }
+              - column: { name: latitude, valueNumeric: -21.5420 }
+              - column: { name: longitude, valueNumeric: 168.0430 }
+              - column: { name: categorie_id, valueComputed: "(SELECT id FROM categorie WHERE libelle = 'Plage')" }
+      rollback:
+        - delete:
+            tableName: lieu
+            where: >-
+              nom IN ('Parc zoologique et forestier Michel-Corbasson', 'Centre culturel Tjibaou', 'Phare Amédée',
+              'Parc provincial de la Rivière Bleue', 'Chutes de la Madeleine', 'Roche Percée et le Bonhomme',
+              'Plage de Poé', 'Fort Téremba', 'Piscine naturelle de la baie d''Oro', 'Cœur de Voh',
+              'La Poule de Hienghène', 'Mont Panié', 'Plage de Tiéti', 'Falaises de Jokin', 'Pont de Mouli',
+              'Aquarium naturel de Maré')
+
+  # ---------------------------------------------------------------------------
+  # 11. Comptes de démonstration (un administrateur, un membre)
+  #     Mots de passe hachés avec BCrypt ; leur valeur est dans le README.
+  #     À supprimer ou à changer avant une vraie mise en production.
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 11-comptes-demo
+      author: exigences-e6
+      comment: "Comptes de démonstration pour la recette et la soutenance — M5, M7"
+      changes:
+        - insert:
+            tableName: utilisateur
+            columns:
+              - column: { name: nom, value: "Administrateur" }
+              - column: { name: email, value: "admin@caillou-evasion.nc" }
+              - column: { name: mot_de_passe, value: "$2a$10$X1b8sio9JA2a3dvUiXVcbO50NgD6mTxkoD5HiEEouLQSZwH8Mo8PO" }
+              - column: { name: role, value: "ADMIN" }
+        - insert:
+            tableName: utilisateur
+            columns:
+              - column: { name: nom, value: "Membre démo" }
+              - column: { name: email, value: "membre@caillou-evasion.nc" }
+              - column: { name: mot_de_passe, value: "$2a$10$sKWnm9lmu2lsbGWKcZAfYuud5lqoMLrGRP3uZ0KjpvPeih/kMCSey" }
+              - column: { name: role, value: "MEMBRE" }
+      rollback:
+        - delete:
+            tableName: utilisateur
+            where: "email IN ('admin@caillou-evasion.nc', 'membre@caillou-evasion.nc')"

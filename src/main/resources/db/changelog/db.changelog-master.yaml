@@ -452,3 +452,23 @@ databaseChangeLog:
             tableName: avis
             columnName: date_publication
             defaultValueComputed: CURRENT_TIMESTAMP
+
+  # ---------------------------------------------------------------------------
+  # 9. Hachage des mots de passe déjà enregistrés en clair
+  #    Les comptes créés avant le hachage BCrypt gardent leur mot de passe :
+  #    pgcrypto calcule la même empreinte BCrypt que Spring Security ($2a$...).
+  #    Pas de retour arrière : une empreinte ne se défait pas.
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 9-hacher-mots-de-passe
+      author: exigences-e6
+      comment: "Mots de passe hachés avec BCrypt — M5"
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS pgcrypto
+        - sql:
+            sql: >-
+              UPDATE utilisateur
+              SET mot_de_passe = crypt(mot_de_passe, gen_salt('bf', 10))
+              WHERE mot_de_passe NOT LIKE '$2%'

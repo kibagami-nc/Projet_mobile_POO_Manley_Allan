@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -26,6 +28,12 @@ public class SecurityConfig {
                         .anyRequest().permitAll());
 
         return http.build();
+    }
+
+    /** Hachage des mots de passe avec BCrypt : empreinte salée, impossible à inverser. */
+    @Bean
+    public PasswordEncoder encodeurMotDePasse() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

@@ -6,6 +6,7 @@ import nc.manley_allan.poo_mobile.controller.dto.UtilisateurDto;
 import nc.manley_allan.poo_mobile.entity.Utilisateur;
 import nc.manley_allan.poo_mobile.enums.Role;
 import nc.manley_allan.poo_mobile.repository.UtilisateurRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,15 +16,18 @@ import java.util.Optional;
 public class AuthentificationService {
 
     private final UtilisateurRepository utilisateurRepository;
+    private final PasswordEncoder encodeurMotDePasse;
 
-    public AuthentificationService(UtilisateurRepository utilisateurRepository) {
+    public AuthentificationService(UtilisateurRepository utilisateurRepository, PasswordEncoder encodeurMotDePasse) {
         this.utilisateurRepository = utilisateurRepository;
+        this.encodeurMotDePasse = encodeurMotDePasse;
     }
 
     public Optional<ConnexionReponse> connexion(String email, String motDePasse) {
 
         return utilisateurRepository.findByEmailIgnoreCase(email.trim())
-                .filter(utilisateur -> motDePasse.equals(utilisateur.getMotDePasse()))
+                // Compare le mot de passe saisi à l'empreinte BCrypt enregistrée
+                .filter(utilisateur -> encodeurMotDePasse.matches(motDePasse, utilisateur.getMotDePasse()))
                 .map(utilisateur -> new ConnexionReponse(
                         UtilisateurDto.from(utilisateur)));
     }
@@ -40,7 +44,7 @@ public class AuthentificationService {
         Utilisateur nouvelUtilisateur = new Utilisateur();
         nouvelUtilisateur.setNom(nom.trim());
         nouvelUtilisateur.setEmail(emailNettoye);
-        nouvelUtilisateur.setMotDePasse(motDePasse); // N.B: Penser au hachage BCrypt plus tard si besoin
+        nouvelUtilisateur.setMotDePasse(encodeurMotDePasse.encode(motDePasse)); // jamais en clair : empreinte BCrypt
         // Colonnes NOT NULL : Hibernate envoie null au lieu du DEFAULT de la base
         nouvelUtilisateur.setDateInscription(LocalDate.now());
         nouvelUtilisateur.setRole(Role.MEMBRE.name());

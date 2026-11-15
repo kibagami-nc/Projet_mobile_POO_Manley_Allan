@@ -49,7 +49,12 @@ class LieuPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SimpleAttributionWidget(source: Text('OpenStreetMap contributors')),
+                  // Mention OpenStreetMap : affichée 5 secondes, puis repliée dans un petit bouton
+                  const RichAttributionWidget(
+                    showFlutterMapAttribution: false,
+                    popupInitialDisplayDuration: Duration(seconds: 5),
+                    attributions: [TextSourceAttribution('OpenStreetMap contributors')],
+                  ),
                 ],
               ),
             ),

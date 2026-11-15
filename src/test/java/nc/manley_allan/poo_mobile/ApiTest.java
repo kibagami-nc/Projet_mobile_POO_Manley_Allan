@@ -42,7 +42,7 @@ class ApiTest {
 
     /** Jeton du compte administrateur de démonstration (créé par Liquibase). */
     private String jetonAdmin() {
-        Utilisateur admin = utilisateurRepository.findByEmailIgnoreCase("admin@caillou-evasion.nc").orElseThrow();
+        Utilisateur admin = utilisateurRepository.findByEmailIgnoreCase("admin@test.com").orElseThrow();
         return "Bearer " + jwtService.creerJeton(admin);
     }
 

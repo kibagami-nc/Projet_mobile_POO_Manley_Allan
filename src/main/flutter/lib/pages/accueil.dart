@@ -134,8 +134,10 @@ class Carte extends StatelessWidget {
         initialZoom: 7.3,
         minZoom: 4,
         maxZoom: 18,
-        // La carte reste confinée à la Nouvelle-Calédonie.
-        cameraConstraint: CameraConstraint.contain(
+        // Le centre de la carte reste en Nouvelle-Calédonie. containCenter et non
+        // contain : avec contain, tout l'écran devait tenir dans ce cadre, plus petit
+        // que l'écran d'un téléphone en hauteur, et la carte refusait de bouger.
+        cameraConstraint: CameraConstraint.containCenter(
           bounds: LatLngBounds(
             const LatLng(-24.0, 163.0), // sud-ouest (Île des Pins)
             const LatLng(-18.5, 169.0), // nord-est (Bélep, Loyauté)
@@ -176,8 +178,13 @@ class Carte extends StatelessWidget {
               ),
           ],
         ),
-        // Mention obligatoire de la politique d'usage des tuiles OpenStreetMap.
-        const SimpleAttributionWidget(source: Text('OpenStreetMap contributors')),
+        // Mention obligatoire de la politique d'usage des tuiles OpenStreetMap :
+        // affichée 5 secondes à l'ouverture de la carte, puis repliée dans un petit bouton.
+        const RichAttributionWidget(
+          showFlutterMapAttribution: false,
+          popupInitialDisplayDuration: Duration(seconds: 5),
+          attributions: [TextSourceAttribution('OpenStreetMap contributors')],
+        ),
       ],
     );
   }

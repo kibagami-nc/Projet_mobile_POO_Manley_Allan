@@ -785,3 +785,36 @@ databaseChangeLog:
               DROP FUNCTION IF EXISTS anonymiser_avis();
               DROP VIEW IF EXISTS vue_avis_en_attente;
               DROP VIEW IF EXISTS vue_lieu_note;
+
+  # ---------------------------------------------------------------------------
+  # 13. Compte administrateur de démonstration plus simple à saisir
+  #     (même principe que le compte test : nom, e-mail et mot de passe « admin »).
+  #     On ne modifie pas le changeSet 11, déjà appliqué sur les bases existantes
+  #     (Liquibase refuserait de démarrer) : on ajoute un nouveau changeSet.
+  #     Ignoré si un compte admin@test.com existe déjà (pas de doublon d'e-mail).
+  # ---------------------------------------------------------------------------
+  - changeSet:
+      id: 13-admin-simple
+      author: exigences-e6
+      comment: "Compte administrateur de démonstration simplifié pour la soutenance — M7"
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM utilisateur WHERE email = 'admin@test.com'
+      changes:
+        - update:
+            tableName: utilisateur
+            columns:
+              - column: { name: nom, value: "admin" }
+              - column: { name: email, value: "admin@test.com" }
+              - column: { name: mot_de_passe, value: "$2a$10$2WQB346XonFMlNubjg0vyeH9S3pyhMTZo4P2QQHhUK2dGxBTizQXq" }
+            where: "email = 'admin@caillou-evasion.nc'"
+      rollback:
+        - update:
+            tableName: utilisateur
+            columns:
+              - column: { name: nom, value: "Administrateur" }
+              - column: { name: email, value: "admin@caillou-evasion.nc" }
+              - column: { name: mot_de_passe, value: "$2a$10$X1b8sio9JA2a3dvUiXVcbO50NgD6mTxkoD5HiEEouLQSZwH8Mo8PO" }
+            where: "email = 'admin@test.com'"

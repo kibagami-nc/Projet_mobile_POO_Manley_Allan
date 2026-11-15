@@ -115,6 +115,69 @@ flutter pub get
 flutter run
 ```
 
+Par défaut, l'application vise `http://10.0.2.2:8080` sur l'émulateur Android et `http://localhost:8080` ailleurs. Sur un téléphone physique, donner l'adresse du PC :
+
+```
+flutter run --dart-define=API_URL=http://192.168.1.20:8080
+```
+
+### Comptes de démonstration
+
+Créés par Liquibase (changeSet `11-comptes-demo`) pour la recette et la soutenance. À supprimer ou à changer avant une vraie mise en production.
+
+| Rôle | E-mail | Mot de passe |
+|---|---|---|
+| Administrateur | admin@caillou-evasion.nc | `Admin-Caillou-2026` |
+| Membre | membre@caillou-evasion.nc | `Membre-Caillou-2026` |
+
+L'administrateur trouve le bouton « Administration des lieux » dans l'onglet « Mon compte ».
+
+### Clé de signature des jetons
+
+Les jetons JWT (valables 24 h) sont signés avec la propriété `caillou.jwt.secret`. Sa valeur par défaut ne sert qu'en développement : en production, la fournir par la variable d'environnement `CAILLOU_JWT_SECRET` (au moins 32 caractères).
+
+### Tests
+
+```
+./mvnw test
+```
+
+16 tests JUnit 5 : le démarrage de l'application et 15 tests d'intégration de l'API (`ApiTest`, MockMvc) sur une base H2 en mémoire, sans PostgreSQL. Ils couvrent la connexion, l'inscription, l'accès selon le rôle, les lieux et le compte.
+
+## API REST
+
+Échanges en JSON. Les routes marquées « jeton » attendent l'en-tête `Authorization: Bearer <jeton>` renvoyé à la connexion.
+
+| Méthode | Route | Accès | Rôle |
+|---|---|---|---|
+| POST | `/api/auth/register` | public | Inscription, renvoie le jeton |
+| POST | `/api/auth/login` | public | Connexion, renvoie le jeton |
+| GET | `/api/lieux?recherche=&categorie=&province=` | public | Lieux triés par nom, recherche et filtres facultatifs |
+| GET | `/api/lieux/{id}` | public | Fiche d'un lieu |
+| POST | `/api/lieux` | jeton ADMIN | Ajouter un lieu |
+| PUT | `/api/lieux/{id}` | jeton ADMIN | Modifier un lieu |
+| DELETE | `/api/lieux/{id}` | jeton ADMIN | Supprimer un lieu |
+| GET | `/api/categories` | public | Catégories |
+| GET | `/api/compte` | jeton | Consulter son compte (droit d'accès) |
+| PUT | `/api/compte` | jeton | Modifier son pseudo et son e-mail (rectification) |
+| PUT | `/api/compte/mot-de-passe` | jeton | Changer de mot de passe (l'ancien est vérifié) |
+| DELETE | `/api/compte` | jeton | Supprimer son compte (effacement) |
+
+Codes d'erreur : 400 données invalides, 401 non connecté ou identifiants faux, 403 rôle insuffisant, 404 lieu inconnu, 409 e-mail déjà utilisé. Les erreurs de saisie renvoient un message lisible : `{"message": "..."}`.
+
+## Base de données
+
+Le schéma et les données initiales (5 catégories, 16 lieux, 2 comptes de démonstration) sont versionnés par Liquibase dans `src/main/resources/db/changelog/db.changelog-master.yaml`. Sur PostgreSQL, le changelog ajoute aussi :
+
+| Objet | Rôle |
+|---|---|
+| Vue `vue_lieu_note` | Note moyenne et nombre d'avis publiés de chaque lieu |
+| Vue `vue_avis_en_attente` | Avis à modérer |
+| Déclencheur `trg_anonymiser_avis` | À la suppression d'un compte, ses avis restent, sans son nom |
+| Déclencheur `trg_avis_modifie` | Un avis dont la note ou le commentaire change repasse en modération |
+| Procédure `moderer_avis(id, décision)` | Publie (`PUBLIE`) ou refuse (`REJETE`) un avis en attente |
+| Procédure `supprimer_compte(email)` | Supprime un compte membre ; refuse un compte administrateur |
+
 ## Protection des données
 
 Le projet applique les standards RGPD dès la conception : collecte minimale (e-mail, pseudonyme, mot de passe haché, favoris, avis), position GPS traitée uniquement sur le téléphone et jamais transmise au serveur, consultation, rectification et suppression du compte depuis l'application.

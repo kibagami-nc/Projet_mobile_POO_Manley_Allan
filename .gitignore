@@ -1,7 +1,6 @@
 target/
 
-# Tests
-src/test/
+# Tests (les tests de l'API, dans src/test/, sont versionnés)
 src/main/flutter/test/
 
 .idea/caches/

@@ -63,6 +63,11 @@ class LieuService {
         () => _client.delete(ApiConfig.uri('/api/lieux/$id'), headers: _enTetesAdmin()));
   }
 
+  static Future<void> ajouterFavori(int lieuId) async {
+    await appelerApi(() =>
+        http.post(ApiConfig.uri('/api/favoris/$lieuId'), headers: Session.instance.enTetesAuth));
+  }
+
   Map<String, String> _enTetesAdmin() =>
       {...ApiConfig.enTetesJson, ...Session.instance.enTetesAuth};
 

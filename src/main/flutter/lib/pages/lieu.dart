@@ -3,6 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../models/lieu.dart';
+import '../services/lieu_service.dart';
+import '../services/session.dart';
 
 /// Fiche detaillee d'un lieu (exigence M2), ouverte depuis la carte,
 /// la recherche ou l'onglet Explorer.
@@ -17,7 +19,16 @@ class LieuPage extends StatelessWidget {
     final textes = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Fiche du lieu')),
+      appBar: AppBar(
+        title: const Text('Fiche du lieu'),
+        actions: [
+          if (Session.instance.estConnecte)
+            IconButton(
+              icon: const Icon(Icons.favorite_border),
+              onPressed: () => LieuService.ajouterFavori(lieu.id),
+            ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
